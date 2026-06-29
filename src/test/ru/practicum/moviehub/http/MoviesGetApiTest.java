@@ -1,6 +1,5 @@
 package ru.practicum.moviehub.http;
 
-import com.google.gson.reflect.TypeToken;
 import org.junit.jupiter.api.Test;
 import ru.practicum.moviehub.model.Movie;
 
