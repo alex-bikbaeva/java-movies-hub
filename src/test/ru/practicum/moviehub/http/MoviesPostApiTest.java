@@ -14,9 +14,7 @@ public class MoviesPostApiTest extends MoviesApiTest {
 
     @Test
     void postMovies_whenValid_returnsCreatedMovie() throws Exception {
-        HttpResponse<String> resp = postJson("/movies", """
-                {"title":"Прибытие","year":2016}
-                """);
+        HttpResponse<String> resp = postJson("/movies", "{\"title\":\"Прибытие\",\"year\":2016}");
 
         assertEquals(201, resp.statusCode());
         assertContentTypeJson(resp);
@@ -29,9 +27,7 @@ public class MoviesPostApiTest extends MoviesApiTest {
 
     @Test
     void postMovies_whenTitleEmpty_returns422() throws Exception {
-        HttpResponse<String> resp = postJson("/movies", """
-                {"title":"   ","year":2016}
-                """);
+        HttpResponse<String> resp = postJson("/movies", "{\"title\":\"   \",\"year\":2016}");
 
         assertEquals(422, resp.statusCode());
 
@@ -55,9 +51,7 @@ public class MoviesPostApiTest extends MoviesApiTest {
 
     @Test
     void postMovies_whenYearInvalid_returns422() throws Exception {
-        HttpResponse<String> resp = postJson("/movies", """
-                {"title":"Старый фильм","year":1800}
-                """);
+        HttpResponse<String> resp = postJson("/movies", "{\"title\":\"Старый фильм\",\"year\":1800}");
 
         assertEquals(422, resp.statusCode());
 
@@ -71,9 +65,7 @@ public class MoviesPostApiTest extends MoviesApiTest {
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(BASE + "/movies"))
                 .header("Content-Type", "text/plain")
-                .POST(HttpRequest.BodyPublishers.ofString("""
-                        {"title":"Прибытие","year":2016}
-                        """))
+                .POST(HttpRequest.BodyPublishers.ofString("{\"title\":\"Прибытие\",\"year\":2016}"))
                 .build();
 
         HttpResponse<String> resp =
@@ -84,9 +76,7 @@ public class MoviesPostApiTest extends MoviesApiTest {
 
     @Test
     void postMovies_whenJsonInvalid_returns400() throws Exception {
-        HttpResponse<String> resp = postJson("/movies", """
-                {"title":"Сломленный","year":}
-                """);
+        HttpResponse<String> resp = postJson("/movies", "{\"title\":\"Сломленный\",\"year\":}");
 
         assertEquals(400, resp.statusCode());
 
