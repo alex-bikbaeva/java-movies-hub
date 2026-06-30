@@ -31,6 +31,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
     protected void sendError(HttpExchange ex, int status, String error) throws IOException {
         sendJson(ex, status, GSON.toJson(new ErrorResponse(error)));
     }
+
     protected void sendValidationError(HttpExchange ex, List<String> details) throws IOException {
         sendJson(ex, 422, GSON.toJson(new ErrorResponse("Ошибка валидации", details)));
     }
