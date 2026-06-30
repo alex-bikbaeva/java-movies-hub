@@ -26,9 +26,9 @@ public class MoviesStore {
     }
 
     public Movie save(Movie movie) {
-        Movie stored = new Movie(nextId++, movie.getTitle(), movie.getYear());
-        movies.put(stored.getId(), stored);
-        return stored;
+        movie.setId(nextId++);
+        movies.put(movie.getId(), movie);
+        return movie;
     }
 
     public boolean deleteById(long id) {

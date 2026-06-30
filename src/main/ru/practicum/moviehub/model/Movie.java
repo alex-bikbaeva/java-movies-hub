@@ -19,7 +19,9 @@ public class Movie {
     }
 
     public long getId() {
-        return id; }
+        return id;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -31,9 +33,11 @@ public class Movie {
     public void setId(long id) {
         this.id = id;
     }
+
     public void setTitle(String title) {
         this.title = title;
     }
+
     public void setYear(int year) {
         this.year = year;
     }

@@ -6,9 +6,12 @@ import ru.practicum.moviehub.model.Movie;
 import ru.practicum.moviehub.store.MoviesStore;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.Year;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MoviesHandler extends BaseHttpHandler {
     private static final String BASE_PATH = "/movies";
@@ -32,7 +35,7 @@ public class MoviesHandler extends BaseHttpHandler {
     @Override
     public void handle(HttpExchange ex) throws IOException {
         String method = ex.getRequestMethod();
-        String path = ex.getRequestURI().getPath();
+        String path = normalizePath(ex.getRequestURI().getPath());
 
         if (path.equals(BASE_PATH) || path.equals(BASE_PATH + "/")) {
             handleCollectionRequest(ex, method);
@@ -46,6 +49,13 @@ public class MoviesHandler extends BaseHttpHandler {
         }
 
         sendError(ex, 404, ERROR_ENDPOINT_NOT_FOUND);
+    }
+
+    private String normalizePath(String path) {
+        if (path != null && path.length() > 1 && path.endsWith("/")) {
+            return path.substring(0, path.length() - 1);
+        }
+        return path;
     }
 
     private void handleCollectionRequest(HttpExchange ex, String method) throws IOException {
@@ -76,23 +86,40 @@ public class MoviesHandler extends BaseHttpHandler {
         sendError(ex, 405, ERROR_METHOD_NOT_ALLOWED);
     }
 
-    private void handleGetMovies(HttpExchange ex) throws IOException {
-        String query = ex.getRequestURI().getQuery();
+    private Map<String, String> parseQueryParams(String query) {
+        Map<String, String> params = new HashMap<>();
 
         if (query == null || query.isBlank()) {
+            return params;
+        }
+
+        String[] pairs = query.split("&");
+        for (String pair : pairs) {
+            String[] parts = pair.split("=", 2);
+            if (parts.length == 2) {
+                params.put(parts[0], parts[1]);
+            }
+        }
+
+        return params;
+    }
+
+    private void handleGetMovies(HttpExchange ex) throws IOException {
+        Map<String, String> params = parseQueryParams(ex.getRequestURI().getQuery());
+
+        if (params.isEmpty()) {
             sendJson(ex, 200, GSON.toJson(store.findAll()));
             return;
         }
 
-        if (!query.startsWith("year=")) {
+        if (!params.containsKey("year")) {
             sendError(ex, 400, ERROR_INVALID_YEAR_PARAM);
             return;
         }
 
-        String yearValue = query.substring("year=".length());
         int year;
         try {
-            year = Integer.parseInt(yearValue);
+            year = Integer.parseInt(params.get("year"));
         } catch (NumberFormatException e) {
             sendError(ex, 400, ERROR_INVALID_YEAR_PARAM);
             return;
@@ -121,7 +148,7 @@ public class MoviesHandler extends BaseHttpHandler {
             return;
         }
 
-        Movie created = store.save(new Movie(movie.getTitle(), movie.getYear()));
+        Movie created = store.save(movie);
         sendJson(ex, 201, GSON.toJson(created));
     }
 
@@ -180,6 +207,7 @@ public class MoviesHandler extends BaseHttpHandler {
         }
 
         int maxYear = Year.now().getValue() + 1;
+
         if (movie.getYear() < MIN_YEAR || movie.getYear() > maxYear) {
             errors.add("Год должен быть между " + MIN_YEAR + " и " + maxYear);
         }
