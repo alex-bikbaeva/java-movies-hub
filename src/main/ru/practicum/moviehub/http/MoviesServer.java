@@ -2,14 +2,13 @@ package ru.practicum.moviehub.http;
 
 import com.sun.net.httpserver.HttpServer;
 import ru.practicum.moviehub.store.MoviesStore;
-import ru.practicum.moviehub.http.MoviesHandler;
+import ru.practicum.moviehub.store.MoviesHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class MoviesServer {
     private static final int PORT = 8080;
-
     private final HttpServer server;
 
     public MoviesServer(MoviesStore store) {

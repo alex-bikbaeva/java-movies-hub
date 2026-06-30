@@ -13,6 +13,7 @@ import java.util.List;
 public abstract class BaseHttpHandler implements HttpHandler {
     protected static final String CT_JSON = "application/json; charset=UTF-8";
     protected static final Gson GSON = new Gson();
+    private static final String ERROR_VALIDATION = "Ошибка валидации";
 
     protected void sendJson(HttpExchange ex, int status, String json) throws IOException {
         byte[] response = json.getBytes(StandardCharsets.UTF_8);
@@ -33,7 +34,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
     }
 
     protected void sendValidationError(HttpExchange ex, List<String> details) throws IOException {
-        sendJson(ex, 422, GSON.toJson(new ErrorResponse("Ошибка валидации", details)));
+        sendJson(ex, 422, GSON.toJson(new ErrorResponse(ERROR_VALIDATION, details)));
     }
 
     protected String readRequestBody(HttpExchange ex) throws IOException {

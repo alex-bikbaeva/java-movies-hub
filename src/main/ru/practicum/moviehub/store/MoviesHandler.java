@@ -1,12 +1,11 @@
-package ru.practicum.moviehub.http;
+package ru.practicum.moviehub.store;
 
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
+import ru.practicum.moviehub.http.BaseHttpHandler;
 import ru.practicum.moviehub.model.Movie;
-import ru.practicum.moviehub.store.MoviesStore;
 
 import java.io.IOException;
-import java.net.URI;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +16,6 @@ public class MoviesHandler extends BaseHttpHandler {
     private static final String BASE_PATH = "/movies";
     private static final int MIN_YEAR = 1888;
 
-    private static final String ERROR_VALIDATION = "Ошибка валидации";
     private static final String ERROR_INVALID_JSON = "Некорректный JSON";
     private static final String ERROR_UNSUPPORTED_CONTENT_TYPE = "Неподдерживаемый Content-Type";
     private static final String ERROR_METHOD_NOT_ALLOWED = "Метод не поддерживается";
@@ -135,6 +133,7 @@ public class MoviesHandler extends BaseHttpHandler {
         }
 
         Movie movie;
+
         try {
             movie = parseJsonBody(ex, Movie.class);
         } catch (JsonSyntaxException e) {
@@ -143,6 +142,7 @@ public class MoviesHandler extends BaseHttpHandler {
         }
 
         List<String> details = validateMovie(movie);
+
         if (!details.isEmpty()) {
             sendValidationError(ex, details);
             return;
@@ -154,12 +154,14 @@ public class MoviesHandler extends BaseHttpHandler {
 
     private void handleGetMovieById(HttpExchange ex, String idPart) throws IOException {
         Long id = parseId(idPart);
+
         if (id == null) {
             sendError(ex, 400, ERROR_INVALID_ID);
             return;
         }
 
         Movie movie = store.findById(id);
+
         if (movie == null) {
             sendError(ex, 404, ERROR_MOVIE_NOT_FOUND);
             return;
@@ -170,12 +172,14 @@ public class MoviesHandler extends BaseHttpHandler {
 
     private void handleDeleteMovie(HttpExchange ex, String idPart) throws IOException {
         Long id = parseId(idPart);
+
         if (id == null) {
             sendError(ex, 400, ERROR_INVALID_ID);
             return;
         }
 
         boolean deleted = store.deleteById(id);
+
         if (!deleted) {
             sendError(ex, 404, ERROR_MOVIE_NOT_FOUND);
             return;
